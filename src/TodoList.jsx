@@ -1,8 +1,22 @@
-import { Link, useLoaderData } from "react-router-dom";
+import { Form, Link, useLoaderData, useNavigation } from "react-router-dom";
 import { TodoItem } from "./TodoItem";
+import { useEffect, useRef } from "react";
 
 export function TodoList() {
-  const todos = useLoaderData();
+  // receive info from useLoaderData()
+  const {
+    todos,
+    searchParams: { query },
+  } = useLoaderData();
+  //get state
+  const { state } = useNavigation();
+  // create ref
+  const queryRef = useRef();
+
+  // useEffect to set ref = query when query changes
+  useEffect(() => {
+    queryRef.current.value = query;
+  }, [query]);
 
   return (
     <div className="container">
@@ -15,21 +29,28 @@ export function TodoList() {
         </div>
       </h1>
 
-      <form className="form">
+      {/* use react router Form */}
+      <Form className="form">
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="query">Search</label>
-            <input type="search" name="query" id="query" />
+            {/* use ref for input value on screen */}
+            <input type="search" name="query" id="query" ref={queryRef} />
           </div>
           <button className="btn">Search</button>
         </div>
-      </form>
+      </Form>
 
-      <ul>
-        {todos.map((todo) => (
-          <TodoItem key={todo.id} {...todo} />
-        ))}
-      </ul>
+      {/* show Loading if "loading" */}
+      {state === "loading" ? (
+        "Loading..."
+      ) : (
+        <ul>
+          {todos.map((todo) => (
+            <TodoItem key={todo.id} {...todo} />
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
